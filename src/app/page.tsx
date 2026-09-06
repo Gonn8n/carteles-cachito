@@ -248,11 +248,11 @@ export default function Home() {
         <>
           <div className="max-w-6xl mx-auto px-4 py-6 no-print">
             <div className="bg-white rounded-2xl shadow-sm border p-5">
-              {/* Buscador único — layout fijo para que no se desacomode con items */}
-              <form onSubmit={handleSubmit} className="flex flex-col md:flex-row gap-3 md:items-end">
+              {/* Buscador único — Opción A: label arriba, fila input+botones centrada */}
+              <label className="text-xs font-bold tracking-widest text-neutral-500">BUSCADOR (código o nombre) — pegá varios separados por coma</label>
+              <form onSubmit={handleSubmit} className="mt-1 flex flex-col md:flex-row gap-3 md:items-center">
                 <div className="flex-1 relative min-w-0">
-                  <label className="text-xs font-bold tracking-widest text-neutral-500">BUSCADOR (código o nombre) — pegá varios separados por coma</label>
-                  <div className="mt-1 relative">
+                  <div className="relative">
                     <input
                       value={input}
                       onChange={(e) => setInput(e.target.value)}
@@ -282,23 +282,21 @@ export default function Home() {
                       ))}
                     </div>
                   )}
-                  <p className="text-xs text-neutral-400 mt-1">
-                    Escribí <b>código</b> (con/sin ceros, barra) o <b>parte del nombre</b> y elegí. Para lote, pegá <b>37, 110, 119</b> y Enter.
-                  </p>
                 </div>
-                <div className="flex gap-2 shrink-0 self-stretch md:self-end">
-                  <button type="submit" disabled={loading} className="flex-1 md:flex-none bg-black text-white font-black px-6 md:px-8 py-3 rounded-xl hover:bg-neutral-800 disabled:opacity-50 whitespace-nowrap">
+                <div className="flex gap-2 shrink-0">
+                  <button type="submit" disabled={loading} className="bg-black text-white font-black px-6 md:px-8 h-[46px] rounded-xl hover:bg-neutral-800 disabled:opacity-50 whitespace-nowrap">
                     {loading ? "Buscando..." : "Agregar"}
                   </button>
                   {items.length > 0 && (
-                    <button type="button" onClick={() => window.print()} className="flex-1 md:flex-none text-white font-black px-6 md:px-8 py-3 rounded-xl hover:brightness-90 whitespace-nowrap" style={{ backgroundColor: "#E31E24" }}>
+                    <button type="button" onClick={() => window.print()} className="text-white font-black px-6 md:px-8 h-[46px] rounded-xl hover:brightness-90 whitespace-nowrap" style={{ backgroundColor: "#E31E24" }}>
                       Imprimir {items.length}
                     </button>
                   )}
                 </div>
               </form>
+              <p className="text-xs text-neutral-400 mt-1.5">Escribí <b>código</b> (con/sin ceros, barra) o <b>parte del nombre</b> y elegí. Para lote, pegá <b>37, 110, 119</b> y Enter.</p>
 
-              <div className="flex gap-2 mt-4 flex-wrap">
+              <div className="flex gap-2 mt-3 flex-wrap items-center">
                 <button onClick={() => setFormato("a4")} className={`px-4 py-2 rounded-full text-sm font-bold border-2 ${formato === "a4" ? "bg-black text-white border-black" : "bg-white border-neutral-200"}`}>
                   A4 horizontal (1 por hoja)
                 </button>
