@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useRef } from "react";
 import { Cartel } from "@/components/Cartel";
+import { THEME_A4, THEME_2X, type CartelTheme } from "@/lib/cartel-theme";
 
 type Producto = {
   id: number;
@@ -43,11 +44,30 @@ export default function Home() {
   const [showDropdown, setShowDropdown] = useState(false);
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
+  const [themeA4, setThemeA4] = useState<CartelTheme>(THEME_A4);
+  const [theme2x, setTheme2x] = useState<CartelTheme>(THEME_2X);
+
   const PIN = process.env.NEXT_PUBLIC_CARTEL_PIN || "2580";
 
   useEffect(() => {
     const saved = localStorage.getItem("carteles_pin_ok");
     if (saved === "1") setUnlocked(true);
+    try {
+      const a4Raw = localStorage.getItem("cartel-theme-a4");
+      const x2Raw = localStorage.getItem("cartel-theme-2x");
+      if (a4Raw) setThemeA4({ ...THEME_A4, ...JSON.parse(a4Raw) });
+      if (x2Raw) setTheme2x({ ...THEME_2X, ...JSON.parse(x2Raw) });
+    } catch {}
+    const onFocus = () => {
+      try {
+        const a4Raw = localStorage.getItem("cartel-theme-a4");
+        const x2Raw = localStorage.getItem("cartel-theme-2x");
+        if (a4Raw) setThemeA4({ ...THEME_A4, ...JSON.parse(a4Raw) });
+        if (x2Raw) setTheme2x({ ...THEME_2X, ...JSON.parse(x2Raw) });
+      } catch {}
+    };
+    window.addEventListener("focus", onFocus);
+    return () => window.removeEventListener("focus", onFocus);
   }, []);
 
   function handleUnlock(e: React.FormEvent) {
@@ -317,7 +337,16 @@ export default function Home() {
                 <div className="grid gap-6">
                   {items.map((it) => (
                     <div key={it.id} className="bg-white rounded-2xl border shadow-sm overflow-hidden">
-                      <Cartel id={it.id} descripcion={it.descripcion} unidadesPorBulto={it.unidades_por_bulto} precioSur={it.precio_sur} precioUnidadSur={it.precio_unidad_sur} />
+                      <Cartel
+                        id={it.id}
+                        descripcion={it.descripcion}
+                        unidadesPorBulto={it.unidades_por_bulto}
+                        precioSur={it.precio_sur}
+                        precioUnidadSur={it.precio_unidad_sur}
+                        theme={formato === "a4" ? themeA4 : theme2x}
+                        compact={formato === "2x"}
+                        fullHeight={false}
+                      />
                       <div className="border-t bg-neutral-50 px-4 py-3 flex flex-wrap gap-2 items-center justify-between">
                         <span className="text-xs font-bold tracking-widest text-neutral-500">EDITAR (solo impresión)</span>
                         <div className="flex gap-2">
@@ -388,13 +417,21 @@ export default function Home() {
             )}
           </div>
 
-          {/* Área impresión */}
+          {/* Área impresión — usa el theme guardado desde /preview */}
           <div className="print-area hidden">
             {formato === "a4" &&
               items.map((it) => (
                 <div key={`p-a4-${it.id}`} className="print-page-a4">
                   <div className="print-cartel-wrapper">
-                    <Cartel id={it.id} descripcion={it.descripcion} unidadesPorBulto={it.unidades_por_bulto} precioSur={it.precio_sur} precioUnidadSur={it.precio_unidad_sur} fullHeight />
+                    <Cartel
+                      id={it.id}
+                      descripcion={it.descripcion}
+                      unidadesPorBulto={it.unidades_por_bulto}
+                      precioSur={it.precio_sur}
+                      precioUnidadSur={it.precio_unidad_sur}
+                      fullHeight
+                      theme={themeA4}
+                    />
                   </div>
                 </div>
               ))}
@@ -415,6 +452,7 @@ export default function Home() {
                             precioUnidadSur={it.precio_unidad_sur}
                             compact
                             fullHeight
+                            theme={theme2x}
                           />
                         </div>
                       </div>
@@ -458,10 +496,6 @@ export default function Home() {
               .print-half-top { border-bottom: 1.5px dashed #888; }
               .print-half-empty { border-top: 1.5px dashed #ccc; }
               .print-cartel-wrapper { flex: 1; display: flex; min-height: 0; }
-              .print-page-a4 .cartel-title { font-size: 38px !important; }
-              .print-page-a4 .cartel-unit-price { font-size: 72px !important; }
-              .print-page-2x .cartel-title { font-size: 26px !important; }
-              .print-page-2x .cartel-unit-price { font-size: 52px !important; }
             }
           `}</style>
         </>
