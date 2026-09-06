@@ -17,7 +17,10 @@ function fmt(n: number) {
     style: "currency",
     currency: "ARS",
     maximumFractionDigits: 2,
-  }).format(n);
+  })
+    .format(n)
+    .replace(/\u00A0/g, "")
+    .replace(/\s/g, "");
 }
 
 export function Cartel({ id, descripcion, unidadesPorBulto, precioSur, precioUnidadSur, compact, fullHeight, theme }: CartelProps) {
@@ -36,23 +39,23 @@ export function Cartel({ id, descripcion, unidadesPorBulto, precioSur, precioUni
         padding: t ? `${t.padding}px` : undefined,
       }}
     >
-      {/* Header */}
-      <div className="flex justify-between items-start gap-4 shrink-0">
-        <div className="flex items-center gap-3">
+      {/* Header — logo agrandado como header */}
+      <div className="flex justify-between items-start gap-4 shrink-0 border-b border-neutral-100 pb-3">
+        <div className="flex items-center gap-4">
           {/* eslint-disable @next/next/no-img-element */}
           <img
             src="/cachitologo.png"
             alt="Cachito y Jose"
-            className={`object-contain shrink-0 ${compact ? "h-10 md:h-12" : "h-14 md:h-16"}`}
+            className={`object-contain shrink-0 ${compact ? "h-14 md:h-16" : "h-[68px] md:h-[78px]"}`}
             onError={(e) => (e.currentTarget.style.display = "none")}
           />
           <div className="flex flex-col leading-none">
-            <span className={`font-black tracking-wider text-black uppercase ${compact ? "text-sm md:text-base" : "text-base md:text-lg"}`}>Cachito y Jose</span>
-            <span className={`text-neutral-500 uppercase tracking-widest ${compact ? "text-[10px] md:text-xs" : "text-xs md:text-sm"}`}>Distribuidora</span>
+            <span className={`font-black tracking-wider text-black uppercase ${compact ? "text-[13px] md:text-[14px]" : "text-[15px] md:text-[17px]"}`}>Cachito y Jose</span>
+            <span className={`text-neutral-500 uppercase tracking-widest ${compact ? "text-[10px] md:text-[11px]" : "text-[11px] md:text-[12px]"}`}>Distribuidora</span>
           </div>
         </div>
         <div className="flex flex-col items-end gap-1 shrink-0">
-          <span className={`bg-black text-white font-bold uppercase tracking-wider ${compact ? "text-[9px] px-1.5 py-0.5" : "text-[10px] px-2 py-1"}`}>Precio Sur</span>
+          <span className={`bg-black text-white font-bold uppercase tracking-wider rounded-[3px] ${compact ? "text-[9px] px-1.5 py-0.5" : "text-[10px] px-2 py-1"}`}>Precio Sur</span>
           <span className={`text-neutral-400 font-medium ${compact ? "text-[9px]" : "text-[10px]"}`}>ID {id}</span>
         </div>
       </div>

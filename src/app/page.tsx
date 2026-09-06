@@ -243,15 +243,14 @@ export default function Home() {
             </button>
           </form>
           {pinError && <p className="text-sm text-red-600 mt-3 font-medium">{pinError}</p>}
-          <p className="text-xs text-neutral-400 mt-4">PIN por defecto: 2580</p>
         </div>
       ) : (
         <>
           <div className="max-w-6xl mx-auto px-4 py-6 no-print">
             <div className="bg-white rounded-2xl shadow-sm border p-5">
-              {/* Buscador único */}
-              <form onSubmit={handleSubmit} className="flex flex-col md:flex-row gap-3">
-                <div className="flex-1 relative">
+              {/* Buscador único — layout fijo para que no se desacomode con items */}
+              <form onSubmit={handleSubmit} className="flex flex-col md:flex-row gap-3 md:items-end">
+                <div className="flex-1 relative min-w-0">
                   <label className="text-xs font-bold tracking-widest text-neutral-500">BUSCADOR (código o nombre) — pegá varios separados por coma</label>
                   <div className="mt-1 relative">
                     <input
@@ -261,11 +260,6 @@ export default function Home() {
                         if (searchResults.length > 0) setShowDropdown(true);
                       }}
                       onBlur={() => setTimeout(() => setShowDropdown(false), 200)}
-                      onKeyDown={(e) => {
-                        if (e.key === "Enter" && showDropdown && searchResults.length === 1) {
-                          // si hay un único resultado, seleccionarlo directo
-                        }
-                      }}
                       placeholder="Ej: 37 · 7795176000307 · MARINARO · 37, 110, 119"
                       className="w-full border-2 rounded-xl px-4 py-3 text-base font-medium focus:outline-none focus:border-black pr-10"
                       autoComplete="off"
@@ -292,12 +286,12 @@ export default function Home() {
                     Escribí <b>código</b> (con/sin ceros, barra) o <b>parte del nombre</b> y elegí. Para lote, pegá <b>37, 110, 119</b> y Enter.
                   </p>
                 </div>
-                <div className="flex md:flex-col gap-2 md:justify-end shrink-0">
-                  <button type="submit" disabled={loading} className="flex-1 md:flex-none bg-black text-white font-black px-8 py-3 rounded-xl hover:bg-neutral-800 disabled:opacity-50">
+                <div className="flex gap-2 shrink-0 self-stretch md:self-end">
+                  <button type="submit" disabled={loading} className="flex-1 md:flex-none bg-black text-white font-black px-6 md:px-8 py-3 rounded-xl hover:bg-neutral-800 disabled:opacity-50 whitespace-nowrap">
                     {loading ? "Buscando..." : "Agregar"}
                   </button>
                   {items.length > 0 && (
-                    <button type="button" onClick={() => window.print()} className="flex-1 md:flex-none text-white font-black px-8 py-3 rounded-xl hover:brightness-90" style={{ backgroundColor: "#E31E24" }}>
+                    <button type="button" onClick={() => window.print()} className="flex-1 md:flex-none text-white font-black px-6 md:px-8 py-3 rounded-xl hover:brightness-90 whitespace-nowrap" style={{ backgroundColor: "#E31E24" }}>
                       Imprimir {items.length}
                     </button>
                   )}
