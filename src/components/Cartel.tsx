@@ -40,7 +40,7 @@ export function Cartel({ id, descripcion, unidadesPorBulto, precioSur, precioUni
       }}
     >
       {/* Header — logo agrandado como header */}
-      <div className="flex justify-between items-start gap-4 shrink-0 border-b border-neutral-100 pb-3">
+      <div className="flex justify-between items-start gap-4 shrink-0 pb-3">
         <div className="flex items-center gap-4">
           {/* eslint-disable @next/next/no-img-element */}
           <img
