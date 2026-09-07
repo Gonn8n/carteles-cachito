@@ -58,9 +58,20 @@ export default function PreviewA4() {
     setSaved(false);
   }
 
-  function handleSave() {
+  async function handleSave() {
     localStorage.setItem(STORAGE_A4, JSON.stringify(themeA4));
     localStorage.setItem(STORAGE_2X, JSON.stringify(theme2x));
+    // intentar guardar como default del repo (solo funciona en local, en Vercel es read-only)
+    try {
+      const res = await fetch("/api/theme", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ themeA4, theme2x }),
+      });
+      if (res.ok) {
+        // en local, el archivo queda actualizado para el próximo deploy
+      }
+    } catch {}
     setSaved(true);
     setTimeout(() => setSaved(false), 2000);
   }

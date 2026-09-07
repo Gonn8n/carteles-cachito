@@ -55,8 +55,7 @@ export function Cartel({ id, descripcion, unidadesPorBulto, precioSur, precioUni
           </div>
         </div>
         <div className="flex flex-col items-end gap-1 shrink-0">
-          <span className={`bg-black text-white font-bold uppercase tracking-wider rounded-[3px] ${compact ? "text-[9px] px-1.5 py-0.5" : "text-[10px] px-2 py-1"}`}>Precio Sur</span>
-          <span className={`text-neutral-400 font-medium ${compact ? "text-[9px]" : "text-[10px]"}`}>ID {id}</span>
+          <span className={`bg-black text-white font-bold tracking-wider rounded-[3px] ${compact ? "text-[12px] px-2.5 py-1" : "text-[14px] px-3 py-1.5"}`}>ID: {id}</span>
         </div>
       </div>
 
