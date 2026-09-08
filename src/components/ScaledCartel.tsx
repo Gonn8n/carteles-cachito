@@ -12,9 +12,10 @@ export function ScaledCartel({ children, baseWidth = 740 }: { children: React.Re
 
     const update = () => {
       const cw = container.clientWidth;
-      const isMobile = window.innerWidth < 768;
-      const s = isMobile ? Math.min(1, cw / baseWidth) : 1;
-      setScale(s);
+      if (cw === 0) return;
+      const s = Math.min(1, cw / baseWidth);
+      // solo escalar hacia abajo, y solo si es necesario (mobile o viewport chico)
+      setScale(s < 0.99 ? s : 1);
     };
 
     update();
@@ -27,14 +28,13 @@ export function ScaledCartel({ children, baseWidth = 740 }: { children: React.Re
     };
   }, [baseWidth]);
 
-  // desktop: sin escala, ocupa 100% natural
-  if (scale === 1) {
-    return <div className="w-full">{children}</div>;
-  }
-
   return (
     <div ref={containerRef} className="w-full overflow-hidden">
-      <div style={{ width: `${baseWidth}px`, zoom: scale } as React.CSSProperties}>{children}</div>
+      {scale < 1 ? (
+        <div style={{ width: `${baseWidth}px`, zoom: scale } as React.CSSProperties}>{children}</div>
+      ) : (
+        <div className="w-full">{children}</div>
+      )}
     </div>
   );
 }
