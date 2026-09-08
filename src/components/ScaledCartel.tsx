@@ -15,23 +15,33 @@ export function ScaledCartel({ children, baseWidth = 740 }: { children: React.Re
 
     const update = () => {
       const cw = container.clientWidth;
-      // nunca escalar hacia arriba, solo hacia abajo
-      const s = Math.min(1, cw / baseWidth);
+      // solo escalar hacia abajo en mobile (<640px o cuando no entra)
+      const isMobile = window.innerWidth < 768;
+      const s = isMobile ? Math.min(1, cw / baseWidth) : 1;
       setScale(s);
-      const ch = content.scrollHeight;
-      setHeight(ch * s);
+      if (s < 1) {
+        const ch = content.scrollHeight;
+        setHeight(ch * s);
+      } else {
+        setHeight(undefined);
+      }
     };
 
     update();
     const ro = new ResizeObserver(update);
     ro.observe(container);
-    ro.observe(content);
+    if (content) ro.observe(content);
     window.addEventListener("resize", update);
     return () => {
       ro.disconnect();
       window.removeEventListener("resize", update);
     };
   }, [baseWidth]);
+
+  // desktop: sin escala, ocupa 100% natural
+  if (scale === 1) {
+    return <div className="w-full">{children}</div>;
+  }
 
   return (
     <div ref={containerRef} style={{ height: height ? `${height}px` : "auto" }} className="w-full overflow-hidden">
