@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useRef } from "react";
 import { Cartel } from "@/components/Cartel";
+import { ScaledCartel } from "@/components/ScaledCartel";
 import { THEME_A4, THEME_2X, type CartelTheme } from "@/lib/cartel-theme";
 
 type Producto = {
@@ -329,16 +330,18 @@ export default function Home() {
                 <div className="grid gap-6">
                   {items.map((it) => (
                     <div key={it.id} className="bg-white rounded-2xl border shadow-sm overflow-hidden">
-                      <Cartel
-                        id={it.id}
-                        descripcion={it.descripcion}
-                        unidadesPorBulto={it.unidades_por_bulto}
-                        precioSur={it.precio_sur}
-                        precioUnidadSur={it.precio_unidad_sur}
-                        theme={formato === "a4" ? themeA4 : theme2x}
-                        compact={formato === "2x"}
-                        fullHeight={false}
-                      />
+                      <ScaledCartel baseWidth={formato === "a4" ? 740 : 700}>
+                        <Cartel
+                          id={it.id}
+                          descripcion={it.descripcion}
+                          unidadesPorBulto={it.unidades_por_bulto}
+                          precioSur={it.precio_sur}
+                          precioUnidadSur={it.precio_unidad_sur}
+                          theme={formato === "a4" ? themeA4 : theme2x}
+                          compact={formato === "2x"}
+                          fullHeight={false}
+                        />
+                      </ScaledCartel>
                       <div className="border-t bg-neutral-50 px-4 py-3 flex flex-wrap gap-2 items-center justify-between">
                         <span className="text-xs font-bold tracking-widest text-neutral-500">EDITAR (solo impresión)</span>
                         <div className="flex gap-2">
