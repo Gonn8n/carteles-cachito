@@ -3,7 +3,7 @@
 import { useEffect, useState, useRef } from "react";
 import { Cartel } from "@/components/Cartel";
 import { ScaledCartel } from "@/components/ScaledCartel";
-import { THEME_A4, THEME_2X, type CartelTheme } from "@/lib/cartel-theme";
+import { THEME_A4, THEME_2X, THEME_4X, type CartelTheme } from "@/lib/cartel-theme";
 
 type Producto = {
   id: number;
@@ -38,7 +38,7 @@ export default function Home() {
   const [items, setItems] = useState<EditableProducto[]>([]);
   const [notFoundMsg, setNotFoundMsg] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
-  const [formato, setFormato] = useState<"a4" | "2x">("a4");
+  const [formato, setFormato] = useState<"a4" | "2x" | "4x">("a4");
 
   const [searchResults, setSearchResults] = useState<SearchHit[]>([]);
   const [searching, setSearching] = useState(false);
@@ -47,6 +47,7 @@ export default function Home() {
 
   const [themeA4, setThemeA4] = useState<CartelTheme>(THEME_A4);
   const [theme2x, setTheme2x] = useState<CartelTheme>(THEME_2X);
+  const [theme4x, setTheme4x] = useState<CartelTheme>(THEME_4X);
 
   const PIN = process.env.NEXT_PUBLIC_CARTEL_PIN || "2580";
 
@@ -56,15 +57,19 @@ export default function Home() {
     try {
       const a4Raw = localStorage.getItem("cartel-theme-a4");
       const x2Raw = localStorage.getItem("cartel-theme-2x");
+      const x4Raw = localStorage.getItem("cartel-theme-4x");
       if (a4Raw) setThemeA4({ ...THEME_A4, ...JSON.parse(a4Raw) });
       if (x2Raw) setTheme2x({ ...THEME_2X, ...JSON.parse(x2Raw) });
+      if (x4Raw) setTheme4x({ ...THEME_4X, ...JSON.parse(x4Raw) });
     } catch {}
     const onFocus = () => {
       try {
         const a4Raw = localStorage.getItem("cartel-theme-a4");
         const x2Raw = localStorage.getItem("cartel-theme-2x");
+        const x4Raw = localStorage.getItem("cartel-theme-4x");
         if (a4Raw) setThemeA4({ ...THEME_A4, ...JSON.parse(a4Raw) });
         if (x2Raw) setTheme2x({ ...THEME_2X, ...JSON.parse(x2Raw) });
+        if (x4Raw) setTheme4x({ ...THEME_4X, ...JSON.parse(x4Raw) });
       } catch {}
     };
     window.addEventListener("focus", onFocus);
@@ -304,6 +309,9 @@ export default function Home() {
                 <button onClick={() => setFormato("2x")} className={`px-4 py-2 rounded-full text-sm font-bold border-2 ${formato === "2x" ? "bg-black text-white border-black" : "bg-white border-neutral-200"}`}>
                   2 por A4 (2 A5 horizontales)
                 </button>
+                <button onClick={() => setFormato("4x")} className={`px-4 py-2 rounded-full text-sm font-bold border-2 ${formato === "4x" ? "bg-black text-white border-black" : "bg-white border-neutral-200"}`}>
+                  4 por A4 (2×2)
+                </button>
                 {items.length > 0 && (
                   <button onClick={() => setItems([])} className="ml-auto text-xs bg-neutral-100 hover:bg-neutral-200 px-3 py-2 rounded-full font-medium">
                     Limpiar todo
@@ -331,16 +339,16 @@ export default function Home() {
                   {items.map((it) => (
                     <div key={it.id} className="bg-white rounded-2xl border shadow-sm overflow-hidden">
                       <ScaledCartel baseWidth={formato === "a4" ? 740 : 700}>
-                        <Cartel
-                          id={it.id}
-                          descripcion={it.descripcion}
-                          unidadesPorBulto={it.unidades_por_bulto}
-                          precioSur={it.precio_sur}
-                          precioUnidadSur={it.precio_unidad_sur}
-                          theme={formato === "a4" ? themeA4 : theme2x}
-                          compact={formato === "2x"}
-                          fullHeight={false}
-                        />
+                       <Cartel
+                        id={it.id}
+                        descripcion={it.descripcion}
+                        unidadesPorBulto={it.unidades_por_bulto}
+                        precioSur={it.precio_sur}
+                        precioUnidadSur={it.precio_unidad_sur}
+                        theme={formato === "a4" ? themeA4 : formato === "2x" ? theme2x : theme4x}
+                        compact={formato !== "a4"}
+                        fullHeight={false}
+                      />
                       </ScaledCartel>
                       <div className="border-t bg-neutral-50 px-4 py-3 flex flex-wrap gap-2 items-center justify-between">
                         <span className="text-xs font-bold tracking-widest text-neutral-500">EDITAR (solo impresión)</span>
@@ -418,15 +426,7 @@ export default function Home() {
               items.map((it) => (
                 <div key={`p-a4-${it.id}`} className="print-page-a4">
                   <div className="print-cartel-wrapper">
-                    <Cartel
-                      id={it.id}
-                      descripcion={it.descripcion}
-                      unidadesPorBulto={it.unidades_por_bulto}
-                      precioSur={it.precio_sur}
-                      precioUnidadSur={it.precio_unidad_sur}
-                      fullHeight
-                      theme={themeA4}
-                    />
+                    <Cartel id={it.id} descripcion={it.descripcion} unidadesPorBulto={it.unidades_por_bulto} precioSur={it.precio_sur} precioUnidadSur={it.precio_unidad_sur} fullHeight theme={themeA4} />
                   </div>
                 </div>
               ))}
@@ -439,16 +439,7 @@ export default function Home() {
                     {pageItems.map((it, idx) => (
                       <div key={it.id} className={`print-half ${idx === 0 ? "print-half-top" : ""}`}>
                         <div className="print-cartel-wrapper">
-                          <Cartel
-                            id={it.id}
-                            descripcion={it.descripcion}
-                            unidadesPorBulto={it.unidades_por_bulto}
-                            precioSur={it.precio_sur}
-                            precioUnidadSur={it.precio_unidad_sur}
-                            compact
-                            fullHeight
-                            theme={theme2x}
-                          />
+                          <Cartel id={it.id} descripcion={it.descripcion} unidadesPorBulto={it.unidades_por_bulto} precioSur={it.precio_sur} precioUnidadSur={it.precio_unidad_sur} compact fullHeight theme={theme2x} />
                         </div>
                       </div>
                     ))}
@@ -456,11 +447,34 @@ export default function Home() {
                   </div>
                 ));
               })()}
+            {formato === "4x" &&
+              (() => {
+                const pages: EditableProducto[][] = [];
+                for (let i = 0; i < items.length; i += 4) pages.push(items.slice(i, i + 4));
+                return pages.map((pageItems, pi) => (
+                  <div key={`p-4x-${pi}`} className="print-page-4x">
+                    {[0, 1, 2, 3].map((idx) => {
+                      const it = pageItems[idx];
+                      const isTop = idx < 2;
+                      const isLeft = idx % 2 === 0;
+                      return (
+                        <div key={it ? it.id : `empty-${pi}-${idx}`} className={`print-cell ${isTop ? "print-cell-top" : ""} ${isLeft ? "print-cell-left" : ""} ${!it ? "print-cell-empty" : ""}`}>
+                          {it ? (
+                            <div className="print-cartel-wrapper">
+                              <Cartel id={it.id} descripcion={it.descripcion} unidadesPorBulto={it.unidades_por_bulto} precioSur={it.precio_sur} precioUnidadSur={it.precio_unidad_sur} compact fullHeight theme={theme4x} />
+                            </div>
+                          ) : null}
+                        </div>
+                      );
+                    })}
+                  </div>
+                ));
+              })()}
           </div>
 
           <style>{`
             @media print {
-              @page { size: ${formato === "a4" ? "A4 landscape" : "A4 portrait"}; margin: 0; }
+              @page { size: ${formato === "4x" ? "A4 landscape" : formato === "a4" ? "A4 landscape" : "A4 portrait"}; margin: 0; }
               body { background: white !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
               .no-print { display: none !important; }
               .print-area { display: block !important; }
@@ -490,6 +504,25 @@ export default function Home() {
               }
               .print-half-top { border-bottom: 1.5px dashed #888; }
               .print-half-empty { border-top: 1.5px dashed #ccc; }
+              .print-page-4x {
+                width: 297mm; height: 210mm;
+                box-sizing: border-box;
+                break-after: page;
+                display: grid;
+                grid-template-columns: 148.5mm 148.5mm;
+                grid-template-rows: 105mm 105mm;
+                padding: 0;
+              }
+              .print-page-4x:last-child { break-after: auto; }
+              .print-cell {
+                padding: 5mm;
+                box-sizing: border-box;
+                display: flex;
+                flex-direction: column;
+              }
+              .print-cell-top { border-bottom: 1.5px dashed #888; }
+              .print-cell-left { border-right: 1.5px dashed #888; }
+              .print-cell-empty { background: white; }
               .print-cartel-wrapper { flex: 1; display: flex; min-height: 0; }
             }
           `}</style>

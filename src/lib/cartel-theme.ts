@@ -49,8 +49,26 @@ export const THEME_2X: CartelTheme = {
   redRadius: 20,
 };
 
+export const THEME_4X: CartelTheme = {
+  titulo: 24,
+  precioUnit: 60,
+  precioBulto: 20,
+  padding: 16,
+  espacioMedioPy: 10,
+  bloqueRojoPy: 16,
+  gap: 6,
+  footerMt: 6,
+  pillPx: 12,
+  pillPy: 5,
+  pillFont: 9,
+  unitLabelFont: 10,
+  unitLabelMt: 3,
+  redRadius: 10,
+};
+
 export const STORAGE_A4 = "cartel-theme-a4";
 export const STORAGE_2X = "cartel-theme-2x";
+export const STORAGE_4X = "cartel-theme-4x";
 
 export function loadThemeA4(): CartelTheme {
   if (typeof window === "undefined") return THEME_A4;
@@ -67,4 +85,12 @@ export function loadTheme2x(): CartelTheme {
     if (raw) return { ...THEME_2X, ...JSON.parse(raw) };
   } catch {}
   return THEME_2X;
+}
+export function loadTheme4x(): CartelTheme {
+  if (typeof window === "undefined") return THEME_4X;
+  try {
+    const raw = localStorage.getItem(STORAGE_4X);
+    if (raw) return { ...THEME_4X, ...JSON.parse(raw) };
+  } catch {}
+  return THEME_4X;
 }
