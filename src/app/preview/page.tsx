@@ -52,6 +52,14 @@ export default function PreviewA4() {
   const [theme2x, setTheme2x] = useState<CartelTheme>(THEME_2X);
   const [theme4x, setTheme4x] = useState<CartelTheme>(THEME_4X);
   const [saved, setSaved] = useState(false);
+  const [showPromo, setShowPromo] = useState(true);
+  const [promoMinQty, setPromoMinQty] = useState(3);
+  const [promoPrice, setPromoPrice] = useState(Math.round(665 * (1 - 0.1815) * 100) / 100);
+
+  function demoPromo() {
+    if (!showPromo) return null;
+    return { minQty: Math.max(2, Math.round(promoMinQty) || 3), unitPrice: promoPrice };
+  }
 
   useEffect(() => {
     setThemeA4(loadThemeA4());
@@ -144,6 +152,22 @@ export default function PreviewA4() {
             <input type="range" min={0.35} max={1} step={0.05} value={scale} onChange={(e) => setScale(parseFloat(e.target.value))} className="accent-white" />
             <span className="font-mono w-10">{Math.round(scale * 100)}%</span>
           </label>
+          <label className="flex items-center gap-2 text-xs bg-white/10 px-3 py-1.5 rounded-full cursor-pointer">
+            <input type="checkbox" checked={showPromo} onChange={(e) => setShowPromo(e.target.checked)} className="accent-[#E31E24]" />
+            Promo 3+ (−18,15%)
+          </label>
+          {showPromo && (
+            <>
+              <label className="flex items-center gap-1 text-xs">
+                Desde
+                <input type="number" min={2} step={1} value={promoMinQty} onChange={(e) => setPromoMinQty(Math.max(2, Math.round(parseInt(e.target.value || "3", 10) || 3)))} className="w-12 rounded px-1 py-0.5 text-black text-xs" />
+              </label>
+              <label className="flex items-center gap-1 text-xs">
+                $ c/u
+                <input type="number" min={0} step={0.01} value={promoPrice} onChange={(e) => setPromoPrice(Math.round((parseFloat(e.target.value || "0") || 0) * 100) / 100)} className="w-20 rounded px-1 py-0.5 text-black text-xs" />
+              </label>
+            </>
+          )}
           <button onClick={() => window.print()} className="px-4 py-1.5 rounded-full text-xs font-black text-white" style={{ background: "#E31E24" }}>
             Imprimir
           </button>
@@ -157,7 +181,7 @@ export default function PreviewA4() {
             {formato === "a4" && (
               <div className="bg-white shadow-2xl" style={{ width: "297mm", height: "210mm", padding: "6mm", boxSizing: "border-box", display: "flex" }}>
                 <div style={{ flex: 1, display: "flex", minHeight: 0 }}>
-                  <Cartel id={DEMO.id} descripcion={DEMO.descripcion} unidadesPorBulto={DEMO.unidades_por_bulto} precioSur={DEMO.precio_sur} precioUnidadSur={DEMO.precio_unidad_sur} fullHeight theme={themeA4} />
+                  <Cartel id={DEMO.id} descripcion={DEMO.descripcion} unidadesPorBulto={DEMO.unidades_por_bulto} precioSur={DEMO.precio_sur} precioUnidadSur={DEMO.precio_unidad_sur} fullHeight theme={themeA4} promo={demoPromo()} />
                 </div>
               </div>
             )}
@@ -165,12 +189,12 @@ export default function PreviewA4() {
               <div className="bg-white shadow-2xl" style={{ width: "210mm", height: "297mm", boxSizing: "border-box", display: "flex", flexDirection: "column" }}>
                 <div style={{ height: "148.5mm", padding: "6mm", boxSizing: "border-box", display: "flex", flexDirection: "column", borderBottom: "1.5px dashed #888" }}>
                   <div style={{ flex: 1, display: "flex", minHeight: 0 }}>
-                    <Cartel id={DEMO.id} descripcion={DEMO.descripcion} unidadesPorBulto={DEMO.unidades_por_bulto} precioSur={DEMO.precio_sur} precioUnidadSur={DEMO.precio_unidad_sur} compact fullHeight theme={theme2x} />
+                    <Cartel id={DEMO.id} descripcion={DEMO.descripcion} unidadesPorBulto={DEMO.unidades_por_bulto} precioSur={DEMO.precio_sur} precioUnidadSur={DEMO.precio_unidad_sur} compact fullHeight theme={theme2x} promo={demoPromo()} />
                   </div>
                 </div>
                 <div style={{ height: "148.5mm", padding: "6mm", boxSizing: "border-box", display: "flex", flexDirection: "column" }}>
                   <div style={{ flex: 1, display: "flex", minHeight: 0 }}>
-                    <Cartel id={DEMO2.id} descripcion={DEMO2.descripcion} unidadesPorBulto={DEMO2.unidades_por_bulto} precioSur={DEMO2.precio_sur} precioUnidadSur={DEMO2.precio_unidad_sur} compact fullHeight theme={theme2x} />
+                    <Cartel id={DEMO2.id} descripcion={DEMO2.descripcion} unidadesPorBulto={DEMO2.unidades_por_bulto} precioSur={DEMO2.precio_sur} precioUnidadSur={DEMO2.precio_unidad_sur} compact fullHeight theme={theme2x} promo={demoPromo()} />
                   </div>
                 </div>
               </div>
@@ -190,7 +214,7 @@ export default function PreviewA4() {
                     }}
                   >
                     <div style={{ flex: 1, display: "flex", minHeight: 0 }}>
-                      <Cartel id={d.id} descripcion={d.descripcion} unidadesPorBulto={d.unidades_por_bulto} precioSur={d.precio_sur} precioUnidadSur={d.precio_unidad_sur} compact fullHeight theme={theme4x} />
+                      <Cartel id={d.id} descripcion={d.descripcion} unidadesPorBulto={d.unidades_por_bulto} precioSur={d.precio_sur} precioUnidadSur={d.precio_unidad_sur} compact fullHeight theme={theme4x} promo={demoPromo()} />
                     </div>
                   </div>
                 ))}

@@ -28,42 +28,42 @@ export const THEME_A4: CartelTheme = {
   "pillPy": 13,
   "pillFont": 17,
   "unitLabelFont": 25,
-  "unitLabelMt": 16,
+  "unitLabelMt": 0,
   "redRadius": 28
 };
 
 export const THEME_2X: CartelTheme = {
   "titulo": 38,
-  "precioUnit": 100,
+  "precioUnit": 85,
   "precioBulto": 38,
-  "padding": 28,
-  "espacioMedioPy": 23,
-  "bloqueRojoPy": 20,
-  "gap": 6,
-  "footerMt": 24,
-  "pillPx": 25,
+  "padding": 20,
+  "espacioMedioPy": 26,
+  "bloqueRojoPy": 10,
+  "gap": 4,
+  "footerMt": 19,
+  "pillPx": 23,
   "pillPy": 11,
   "pillFont": 14,
-  "unitLabelFont": 18,
-  "unitLabelMt": 4,
-  "redRadius": 21
+  "unitLabelFont": 21,
+  "unitLabelMt": 5,
+  "redRadius": 28
 };
 
 export const THEME_4X: CartelTheme = {
   "titulo": 25,
-  "precioUnit": 70,
-  "precioBulto": 25,
-  "padding": 16,
+  "precioUnit": 55,
+  "precioBulto": 28,
+  "padding": 13,
   "espacioMedioPy": 8,
   "bloqueRojoPy": 10,
   "gap": 4,
-  "footerMt": 10,
-  "pillPx": 18,
+  "footerMt": 9,
+  "pillPx": 14,
   "pillPy": 7,
-  "pillFont": 10,
-  "unitLabelFont": 12,
-  "unitLabelMt": 3,
-  "redRadius": 11
+  "pillFont": 11,
+  "unitLabelFont": 13,
+  "unitLabelMt": 0,
+  "redRadius": 15
 };
 
 export const STORAGE_A4 = "cartel-theme-a4";

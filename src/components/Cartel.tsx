@@ -1,6 +1,11 @@
 "use client";
 import type { CartelTheme } from "@/lib/cartel-theme";
 
+export interface CartelPromo {
+  minQty: number;
+  unitPrice: number;
+}
+
 interface CartelProps {
   id: number;
   descripcion: string;
@@ -10,6 +15,7 @@ interface CartelProps {
   compact?: boolean;
   fullHeight?: boolean;
   theme?: CartelTheme;
+  promo?: CartelPromo | null;
 }
 
 function fmt(n: number) {
@@ -23,7 +29,7 @@ function fmt(n: number) {
     .replace(/\s/g, "");
 }
 
-export function Cartel({ id, descripcion, unidadesPorBulto, precioSur, precioUnidadSur, compact, fullHeight, theme }: CartelProps) {
+export function Cartel({ id, descripcion, unidadesPorBulto, precioSur, precioUnidadSur, compact, fullHeight, theme, promo }: CartelProps) {
   const ub = unidadesPorBulto && unidadesPorBulto > 0 ? unidadesPorBulto : 1;
   const precioUnit = precioUnidadSur != null ? precioUnidadSur : precioSur / ub;
   const rojo = "#E31E24";
@@ -110,6 +116,34 @@ export function Cartel({ id, descripcion, unidadesPorBulto, precioSur, precioUni
           Precio por Unidad
         </div>
       </div>
+
+      {/* Promo por cantidad (opcional, solo impresión) */}
+      {promo && (
+        <div
+          className="text-center shrink-0"
+          style={{
+            backgroundColor: "#111111",
+            borderRadius: t ? `${Math.max(8, Math.round(t.redRadius * 0.8))}px` : 12,
+            paddingTop: t ? `${Math.max(6, Math.round(t.bloqueRojoPy * 0.35))}px` : undefined,
+            paddingBottom: t ? `${Math.max(6, Math.round(t.bloqueRojoPy * 0.35))}px` : undefined,
+            paddingLeft: "12px",
+            paddingRight: "12px",
+            marginTop: t ? `${Math.max(6, Math.round(t.gap * 0.8))}px` : undefined,
+          }}
+        >
+          <div
+            className="font-black tracking-[0.18em] text-white uppercase"
+            style={t ? { fontSize: `${Math.max(9, Math.round(t.unitLabelFont * 0.85))}px` } : undefined}
+          >
+            Llevando {promo.minQty} o más
+          </div>
+          <div className="flex justify-center items-center" style={{ marginTop: "4px" }}>
+            <span className="font-black leading-none text-white" style={t ? { fontSize: `${Math.round(t.precioUnit * 0.55)}px` } : undefined}>
+              {fmt(promo.unitPrice)}
+            </span>
+          </div>
+        </div>
+      )}
 
       {/* Footer */}
       <div

@@ -25,7 +25,22 @@ type EditableProducto = {
   precio_sur: number;
   precio_unidad_sur: number | null;
   editing: boolean;
+  promo: { active: boolean; minQty: number; promoPrice: number } | null;
 };
+
+function baseUnitPrice(it: { precio_sur: number; precio_unidad_sur: number | null; unidades_por_bulto: number }) {
+  const ub = it.unidades_por_bulto && it.unidades_por_bulto > 0 ? it.unidades_por_bulto : 1;
+  return it.precio_unidad_sur != null ? it.precio_unidad_sur : it.precio_sur / ub;
+}
+
+function quickPromoPrice(it: { precio_sur: number; precio_unidad_sur: number | null; unidades_por_bulto: number }) {
+  return Math.round(baseUnitPrice(it) * (1 - 0.1815) * 100) / 100;
+}
+
+function promoPass(it: { precio_sur: number; precio_unidad_sur: number | null; unidades_por_bulto: number }, promo: { active: boolean; minQty: number; promoPrice: number } | null) {
+  if (!promo || !promo.active) return null;
+  return { minQty: Math.max(2, Math.round(promo.minQty) || 3), unitPrice: promo.promoPrice };
+}
 
 type SearchHit = { id: number; descripcion: string; unidades_por_bulto: number; precio_sur: number; precio_unidad_sur: number | null };
 
@@ -98,6 +113,7 @@ export default function Home() {
       precio_sur: p.precio_sur,
       precio_unidad_sur: p.precio_unidad_sur,
       editing: false,
+      promo: null,
     };
   }
 
@@ -348,6 +364,7 @@ export default function Home() {
                         theme={formato === "a4" ? themeA4 : formato === "2x" ? theme2x : theme4x}
                         compact={formato !== "a4"}
                         fullHeight={false}
+                        promo={promoPass(it, it.promo)}
                       />
                       </ScaledCartel>
                       <div className="border-t bg-neutral-50 px-4 py-3 flex flex-wrap gap-2 items-center justify-between">
@@ -411,6 +428,68 @@ export default function Home() {
                             />
                             <span className="text-[11px] text-neutral-400">Si cambiás bulto o unidades se recalcula; luego podés pisarlo.</span>
                           </label>
+                          <div className="md:col-span-2 border-t pt-3">
+                            <label className="flex items-center gap-2 cursor-pointer">
+                              <input
+                                type="checkbox"
+                                checked={!!it.promo?.active}
+                                onChange={(e) =>
+                                  updateItem(it.id, {
+                                    promo: e.target.checked ? { active: true, minQty: it.promo?.minQty || 3, promoPrice: it.promo?.promoPrice || quickPromoPrice(it) } : null,
+                                  })
+                                }
+                                className="h-4 w-4 accent-black"
+                              />
+                              <span className="text-xs font-bold text-neutral-700">PROMO POR CANTIDAD (muestra sector extra en el cartel)</span>
+                            </label>
+                            {it.promo?.active && (
+                              <div className="grid grid-cols-2 gap-3 mt-2">
+                                <label>
+                                  <span className="text-xs font-bold text-neutral-600">Desde (unidades sueltas)</span>
+                                  <input
+                                    type="number"
+                                    min={2}
+                                    step={1}
+                                    value={it.promo.minQty}
+                                    onChange={(e) => {
+                                      const v = Math.max(2, Math.round(parseInt(e.target.value || "3", 10) || 3));
+                                      updateItem(it.id, { promo: { ...it.promo!, minQty: v } });
+                                    }}
+                                    className="mt-1 w-full border rounded-lg px-3 py-2 font-medium"
+                                  />
+                                </label>
+                                <label>
+                                  <span className="text-xs font-bold text-neutral-600">Precio promo por unidad (fijo)</span>
+                                  <input
+                                    type="number"
+                                    min={0}
+                                    step={0.01}
+                                    value={it.promo.promoPrice}
+                                    onChange={(e) => {
+                                      const v = parseFloat(e.target.value || "0");
+                                      updateItem(it.id, { promo: { ...it.promo!, promoPrice: isNaN(v) ? 0 : Math.round(v * 100) / 100 } });
+                                    }}
+                                    className="mt-1 w-full border rounded-lg px-3 py-2 font-medium"
+                                  />
+                                </label>
+                                <p className="col-span-2 text-[11px] text-neutral-500">
+                                  Llevando {Math.max(2, Math.round(it.promo.minQty) || 3)} o más:{" "}
+                                  <b>
+                                    ${it.promo.promoPrice.toLocaleString("es-AR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} c/u
+                                  </b>
+                                  {(() => {
+                                    const base = baseUnitPrice(it);
+                                    const pct = base > 0 ? (1 - it.promo!.promoPrice / base) * 100 : 0;
+                                    return pct > 0 ? (
+                                      <> (−{new Intl.NumberFormat("es-AR", { maximumFractionDigits: 2 }).format(pct)}% vs. precio normal).</>
+                                    ) : (
+                                      <>.</>
+                                    );
+                                  })()}
+                                </p>
+                              </div>
+                            )}
+                          </div>
                         </div>
                       )}
                     </div>
@@ -426,7 +505,16 @@ export default function Home() {
               items.map((it) => (
                 <div key={`p-a4-${it.id}`} className="print-page-a4">
                   <div className="print-cartel-wrapper">
-                    <Cartel id={it.id} descripcion={it.descripcion} unidadesPorBulto={it.unidades_por_bulto} precioSur={it.precio_sur} precioUnidadSur={it.precio_unidad_sur} fullHeight theme={themeA4} />
+                    <Cartel
+                      id={it.id}
+                      descripcion={it.descripcion}
+                      unidadesPorBulto={it.unidades_por_bulto}
+                      precioSur={it.precio_sur}
+                      precioUnidadSur={it.precio_unidad_sur}
+                      fullHeight
+                      theme={themeA4}
+                      promo={promoPass(it, it.promo)}
+                    />
                   </div>
                 </div>
               ))}
@@ -439,7 +527,17 @@ export default function Home() {
                     {pageItems.map((it, idx) => (
                       <div key={it.id} className={`print-half ${idx === 0 ? "print-half-top" : ""}`}>
                         <div className="print-cartel-wrapper">
-                          <Cartel id={it.id} descripcion={it.descripcion} unidadesPorBulto={it.unidades_por_bulto} precioSur={it.precio_sur} precioUnidadSur={it.precio_unidad_sur} compact fullHeight theme={theme2x} />
+                          <Cartel
+                            id={it.id}
+                            descripcion={it.descripcion}
+                            unidadesPorBulto={it.unidades_por_bulto}
+                            precioSur={it.precio_sur}
+                            precioUnidadSur={it.precio_unidad_sur}
+                            compact
+                            fullHeight
+                            theme={theme2x}
+                            promo={promoPass(it, it.promo)}
+                          />
                         </div>
                       </div>
                     ))}
@@ -461,7 +559,17 @@ export default function Home() {
                         <div key={it ? it.id : `empty-${pi}-${idx}`} className={`print-cell ${isTop ? "print-cell-top" : ""} ${isLeft ? "print-cell-left" : ""} ${!it ? "print-cell-empty" : ""}`}>
                           {it ? (
                             <div className="print-cartel-wrapper">
-                              <Cartel id={it.id} descripcion={it.descripcion} unidadesPorBulto={it.unidades_por_bulto} precioSur={it.precio_sur} precioUnidadSur={it.precio_unidad_sur} compact fullHeight theme={theme4x} />
+                              <Cartel
+                                id={it.id}
+                                descripcion={it.descripcion}
+                                unidadesPorBulto={it.unidades_por_bulto}
+                                precioSur={it.precio_sur}
+                                precioUnidadSur={it.precio_unidad_sur}
+                                compact
+                                fullHeight
+                                theme={theme4x}
+                                promo={promoPass(it, it.promo)}
+                              />
                             </div>
                           ) : null}
                         </div>
