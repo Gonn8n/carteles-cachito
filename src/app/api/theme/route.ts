@@ -38,6 +38,7 @@ export async function POST(req: NextRequest) {
           unitLabelFont: 10,
           unitLabelMt: 3,
           redRadius: 10,
+          promoGap: 4,
         };
       }
     }
@@ -57,6 +58,7 @@ export async function POST(req: NextRequest) {
   unitLabelFont: number;
   unitLabelMt: number;
   redRadius: number;
+  promoGap: number;
 };
 
 export const THEME_A4: CartelTheme = ${JSON.stringify(themeA4, null, 2)};

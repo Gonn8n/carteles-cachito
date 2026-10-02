@@ -13,57 +13,61 @@ export type CartelTheme = {
   unitLabelFont: number;
   unitLabelMt: number;
   redRadius: number;
+  promoGap: number;
 };
 
 export const THEME_A4: CartelTheme = {
   "titulo": 52,
-  "precioUnit": 139,
+  "precioUnit": 140,
   "precioBulto": 42,
-  "padding": 36,
-  "espacioMedioPy": 30,
-  "bloqueRojoPy": 25,
-  "gap": 10,
+  "padding": 35,
+  "espacioMedioPy": 33,
+  "bloqueRojoPy": 14,
+  "gap": 18,
   "footerMt": 26,
   "pillPx": 25,
-  "pillPy": 13,
-  "pillFont": 17,
-  "unitLabelFont": 25,
-  "unitLabelMt": 16,
-  "redRadius": 28
+  "pillPy": 12,
+  "pillFont": 18,
+  "unitLabelFont": 28,
+  "unitLabelMt": 0,
+  "redRadius": 28,
+  "promoGap": 0
 };
 
 export const THEME_2X: CartelTheme = {
   "titulo": 38,
-  "precioUnit": 100,
+  "precioUnit": 84,
   "precioBulto": 38,
-  "padding": 28,
-  "espacioMedioPy": 23,
-  "bloqueRojoPy": 20,
-  "gap": 6,
-  "footerMt": 24,
-  "pillPx": 25,
+  "padding": 20,
+  "espacioMedioPy": 6,
+  "bloqueRojoPy": 10,
+  "gap": 4,
+  "footerMt": 12,
+  "pillPx": 22,
   "pillPy": 11,
-  "pillFont": 14,
-  "unitLabelFont": 18,
-  "unitLabelMt": 4,
-  "redRadius": 21
+  "pillFont": 13,
+  "unitLabelFont": 21,
+  "unitLabelMt": 5,
+  "redRadius": 28,
+  "promoGap": 0
 };
 
 export const THEME_4X: CartelTheme = {
   "titulo": 25,
-  "precioUnit": 70,
-  "precioBulto": 25,
-  "padding": 16,
-  "espacioMedioPy": 8,
+  "precioUnit": 60,
+  "precioBulto": 26,
+  "padding": 14,
+  "espacioMedioPy": 6,
   "bloqueRojoPy": 10,
   "gap": 4,
-  "footerMt": 10,
-  "pillPx": 18,
+  "footerMt": 6,
+  "pillPx": 12,
   "pillPy": 7,
-  "pillFont": 10,
-  "unitLabelFont": 12,
-  "unitLabelMt": 3,
-  "redRadius": 11
+  "pillFont": 11,
+  "unitLabelFont": 13,
+  "unitLabelMt": 0,
+  "redRadius": 15,
+  "promoGap": 0
 };
 
 export const STORAGE_A4 = "cartel-theme-a4";

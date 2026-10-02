@@ -1,6 +1,11 @@
 "use client";
 import type { CartelTheme } from "@/lib/cartel-theme";
 
+export interface CartelPromo {
+  minQty: number;
+  unitPrice: number;
+}
+
 interface CartelProps {
   id: number;
   descripcion: string;
@@ -10,6 +15,9 @@ interface CartelProps {
   compact?: boolean;
   fullHeight?: boolean;
   theme?: CartelTheme;
+  promo?: CartelPromo | null;
+  /** false = bloque rojo arriba (destaca precio unidad), true = bloque negro arriba (destaca promo) */
+  promoFirst?: boolean;
 }
 
 function fmt(n: number) {
@@ -23,13 +31,18 @@ function fmt(n: number) {
     .replace(/\s/g, "");
 }
 
-export function Cartel({ id, descripcion, unidadesPorBulto, precioSur, precioUnidadSur, compact, fullHeight, theme }: CartelProps) {
+export function Cartel({ id, descripcion, unidadesPorBulto, precioSur, precioUnidadSur, compact, fullHeight, theme, promo, promoFirst }: CartelProps) {
   const ub = unidadesPorBulto && unidadesPorBulto > 0 ? unidadesPorBulto : 1;
   const precioUnit = precioUnidadSur != null ? precioUnidadSur : precioSur / ub;
   const rojo = "#E31E24";
 
   // si hay theme, usamos valores exactos (preview editor); si no, fallback a diseño previo
   const t = theme;
+  // posición del destacado: negro arriba (promo) o rojo arriba (precio unidad). Default: negro arriba.
+  const blackOnTop = !promo || promoFirst !== false;
+  const RED = 0.55;
+  const LABEL = 0.85;
+  const PAD = 0.35;
 
   return (
     <div
@@ -88,28 +101,93 @@ export function Cartel({ id, descripcion, unidadesPorBulto, precioSur, precioUni
         </div>
       </div>
 
-      {/* Bloque rojo */}
+      {/* Bloque negro promo (tamaño según si va arriba destacado o abajo secundario) */}
+      {promo && blackOnTop && (
+        <div
+          className="text-center shrink-0"
+          style={{
+            backgroundColor: "#111111",
+            borderRadius: t ? `${t.redRadius}px` : 12,
+            paddingTop: t ? `${t.bloqueRojoPy}px` : undefined,
+            paddingBottom: t ? `${t.bloqueRojoPy}px` : undefined,
+            paddingLeft: "16px",
+            paddingRight: "16px",
+          }}
+        >
+          <div
+            className="font-black tracking-[0.18em] text-white uppercase"
+            style={t ? { fontSize: `${t.unitLabelFont}px`, marginTop: `${t.unitLabelMt}px` } : undefined}
+          >
+            Llevando {promo.minQty} o más
+          </div>
+          <div className="flex justify-center items-center" style={{ marginTop: t ? `${t.promoGap}px` : "4px" }}>
+            <span className="font-black leading-none text-white" style={t ? { fontSize: `${t.precioUnit}px` } : undefined}>
+              {fmt(promo.unitPrice)}
+            </span>
+          </div>
+        </div>
+      )}
+
+      {/* Bloque rojo — protagonista si no hay promo o si va arriba, secundario si la promo va arriba */}
       <div
         className="cartel-red-block text-center shrink-0"
         style={{
           backgroundColor: rojo,
-          borderRadius: t ? `${t.redRadius}px` : undefined,
-          paddingTop: t ? `${t.bloqueRojoPy}px` : undefined,
-          paddingBottom: t ? `${t.bloqueRojoPy}px` : undefined,
+          borderRadius: t ? (promo && blackOnTop ? `${Math.max(8, Math.round(t.redRadius * 0.8))}px` : `${t.redRadius}px`) : undefined,
+          paddingTop: t ? (promo && blackOnTop ? `${Math.max(6, Math.round(t.bloqueRojoPy * PAD))}px` : `${t.bloqueRojoPy}px`) : undefined,
+          paddingBottom: t ? (promo && blackOnTop ? `${Math.max(6, Math.round(t.bloqueRojoPy * PAD))}px` : `${t.bloqueRojoPy}px`) : undefined,
           paddingLeft: t ? "16px" : undefined,
           paddingRight: t ? "16px" : undefined,
+          marginTop: promo && blackOnTop && t ? `${Math.max(6, Math.round(t.gap * 0.8))}px` : undefined,
         }}
       >
-        <div className="cartel-unit-price font-black leading-none tracking-tight text-white" style={t ? { fontSize: `${t.precioUnit}px` } : undefined}>
+        <div
+          className="cartel-unit-price font-black leading-none tracking-tight text-white"
+          style={t ? { fontSize: promo && blackOnTop ? `${Math.round(t.precioUnit * RED)}px` : `${t.precioUnit}px` } : undefined}
+        >
           {fmt(precioUnit)}
         </div>
         <div
           className="font-black tracking-[0.2em] text-black uppercase"
-          style={t ? { fontSize: `${t.unitLabelFont}px`, marginTop: `${t.unitLabelMt}px` } : undefined}
+          style={
+            t
+              ? promo && blackOnTop
+                ? { fontSize: `${Math.max(9, Math.round(t.unitLabelFont * LABEL))}px`, marginTop: `${t.unitLabelMt}px` }
+                : { fontSize: `${t.unitLabelFont}px`, marginTop: `${t.unitLabelMt}px` }
+              : undefined
+          }
         >
           Precio por Unidad
         </div>
       </div>
+
+      {/* Bloque negro promo abajo (cuando se destaca el precio por unidad) */}
+      {promo && !blackOnTop && (
+        <div
+          className="text-center shrink-0"
+          style={{
+            backgroundColor: "#111111",
+            borderRadius: t ? `${Math.max(8, Math.round(t.redRadius * 0.8))}px` : 12,
+            paddingTop: t ? `${Math.max(6, Math.round(t.bloqueRojoPy * PAD))}px` : undefined,
+            paddingBottom: t ? `${Math.max(6, Math.round(t.bloqueRojoPy * PAD))}px` : undefined,
+            paddingLeft: "16px",
+            paddingRight: "16px",
+            marginTop: t ? `${Math.max(6, Math.round(t.gap * 0.8))}px` : undefined,
+          }}
+        >
+          <div
+            className="font-black tracking-[0.18em] text-white uppercase"
+            style={t ? { fontSize: `${Math.max(9, Math.round(t.unitLabelFont * LABEL))}px`, marginTop: `${t.unitLabelMt}px` } : undefined}
+          >
+            Llevando {promo.minQty} o más
+          </div>
+          <div className="flex justify-center items-center" style={{ marginTop: t ? `${t.promoGap}px` : "4px" }}>
+            <span className="font-black leading-none text-white" style={t ? { fontSize: `${Math.round(t.precioUnit * RED)}px` } : undefined}>
+              {fmt(promo.unitPrice)}
+            </span>
+          </div>
+        </div>
+      )}
 
       {/* Footer */}
       <div
