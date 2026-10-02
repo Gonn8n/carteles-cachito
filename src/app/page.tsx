@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useRef } from "react";
 import { Cartel } from "@/components/Cartel";
+import { THEME_A4, THEME_2X, type CartelTheme } from "@/lib/cartel-theme";
 
 type Producto = {
   id: number;
@@ -43,11 +44,30 @@ export default function Home() {
   const [showDropdown, setShowDropdown] = useState(false);
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
+  const [themeA4, setThemeA4] = useState<CartelTheme>(THEME_A4);
+  const [theme2x, setTheme2x] = useState<CartelTheme>(THEME_2X);
+
   const PIN = process.env.NEXT_PUBLIC_CARTEL_PIN || "2580";
 
   useEffect(() => {
     const saved = localStorage.getItem("carteles_pin_ok");
     if (saved === "1") setUnlocked(true);
+    try {
+      const a4Raw = localStorage.getItem("cartel-theme-a4");
+      const x2Raw = localStorage.getItem("cartel-theme-2x");
+      if (a4Raw) setThemeA4({ ...THEME_A4, ...JSON.parse(a4Raw) });
+      if (x2Raw) setTheme2x({ ...THEME_2X, ...JSON.parse(x2Raw) });
+    } catch {}
+    const onFocus = () => {
+      try {
+        const a4Raw = localStorage.getItem("cartel-theme-a4");
+        const x2Raw = localStorage.getItem("cartel-theme-2x");
+        if (a4Raw) setThemeA4({ ...THEME_A4, ...JSON.parse(a4Raw) });
+        if (x2Raw) setTheme2x({ ...THEME_2X, ...JSON.parse(x2Raw) });
+      } catch {}
+    };
+    window.addEventListener("focus", onFocus);
+    return () => window.removeEventListener("focus", onFocus);
   }, []);
 
   function handleUnlock(e: React.FormEvent) {
@@ -223,17 +243,16 @@ export default function Home() {
             </button>
           </form>
           {pinError && <p className="text-sm text-red-600 mt-3 font-medium">{pinError}</p>}
-          <p className="text-xs text-neutral-400 mt-4">PIN por defecto: 2580</p>
         </div>
       ) : (
         <>
           <div className="max-w-6xl mx-auto px-4 py-6 no-print">
             <div className="bg-white rounded-2xl shadow-sm border p-5">
-              {/* Buscador único */}
-              <form onSubmit={handleSubmit} className="flex flex-col md:flex-row gap-3">
-                <div className="flex-1 relative">
-                  <label className="text-xs font-bold tracking-widest text-neutral-500">BUSCADOR (código o nombre) — pegá varios separados por coma</label>
-                  <div className="mt-1 relative">
+              {/* Buscador único — Opción A: label arriba, fila input+botones centrada */}
+              <label className="text-xs font-bold tracking-widest text-neutral-500">BUSCADOR (código o nombre) — pegá varios separados por coma</label>
+              <form onSubmit={handleSubmit} className="mt-1 flex flex-col md:flex-row gap-3 md:items-center">
+                <div className="flex-1 relative min-w-0">
+                  <div className="relative">
                     <input
                       value={input}
                       onChange={(e) => setInput(e.target.value)}
@@ -241,11 +260,6 @@ export default function Home() {
                         if (searchResults.length > 0) setShowDropdown(true);
                       }}
                       onBlur={() => setTimeout(() => setShowDropdown(false), 200)}
-                      onKeyDown={(e) => {
-                        if (e.key === "Enter" && showDropdown && searchResults.length === 1) {
-                          // si hay un único resultado, seleccionarlo directo
-                        }
-                      }}
                       placeholder="Ej: 37 · 7795176000307 · MARINARO · 37, 110, 119"
                       className="w-full border-2 rounded-xl px-4 py-3 text-base font-medium focus:outline-none focus:border-black pr-10"
                       autoComplete="off"
@@ -268,23 +282,21 @@ export default function Home() {
                       ))}
                     </div>
                   )}
-                  <p className="text-xs text-neutral-400 mt-1">
-                    Escribí <b>código</b> (con/sin ceros, barra) o <b>parte del nombre</b> y elegí. Para lote, pegá <b>37, 110, 119</b> y Enter.
-                  </p>
                 </div>
-                <div className="flex md:flex-col gap-2 md:justify-end shrink-0">
-                  <button type="submit" disabled={loading} className="flex-1 md:flex-none bg-black text-white font-black px-8 py-3 rounded-xl hover:bg-neutral-800 disabled:opacity-50">
+                <div className="flex gap-2 shrink-0">
+                  <button type="submit" disabled={loading} className="bg-black text-white font-black px-6 md:px-8 h-[46px] rounded-xl hover:bg-neutral-800 disabled:opacity-50 whitespace-nowrap">
                     {loading ? "Buscando..." : "Agregar"}
                   </button>
                   {items.length > 0 && (
-                    <button type="button" onClick={() => window.print()} className="flex-1 md:flex-none text-white font-black px-8 py-3 rounded-xl hover:brightness-90" style={{ backgroundColor: "#E31E24" }}>
+                    <button type="button" onClick={() => window.print()} className="text-white font-black px-6 md:px-8 h-[46px] rounded-xl hover:brightness-90 whitespace-nowrap" style={{ backgroundColor: "#E31E24" }}>
                       Imprimir {items.length}
                     </button>
                   )}
                 </div>
               </form>
+              <p className="text-xs text-neutral-400 mt-1.5">Escribí <b>código</b> (con/sin ceros, barra) o <b>parte del nombre</b> y elegí. Para lote, pegá <b>37, 110, 119</b> y Enter.</p>
 
-              <div className="flex gap-2 mt-4 flex-wrap">
+              <div className="flex gap-2 mt-3 flex-wrap items-center">
                 <button onClick={() => setFormato("a4")} className={`px-4 py-2 rounded-full text-sm font-bold border-2 ${formato === "a4" ? "bg-black text-white border-black" : "bg-white border-neutral-200"}`}>
                   A4 horizontal (1 por hoja)
                 </button>
@@ -317,7 +329,16 @@ export default function Home() {
                 <div className="grid gap-6">
                   {items.map((it) => (
                     <div key={it.id} className="bg-white rounded-2xl border shadow-sm overflow-hidden">
-                      <Cartel id={it.id} descripcion={it.descripcion} unidadesPorBulto={it.unidades_por_bulto} precioSur={it.precio_sur} precioUnidadSur={it.precio_unidad_sur} />
+                      <Cartel
+                        id={it.id}
+                        descripcion={it.descripcion}
+                        unidadesPorBulto={it.unidades_por_bulto}
+                        precioSur={it.precio_sur}
+                        precioUnidadSur={it.precio_unidad_sur}
+                        theme={formato === "a4" ? themeA4 : theme2x}
+                        compact={formato === "2x"}
+                        fullHeight={false}
+                      />
                       <div className="border-t bg-neutral-50 px-4 py-3 flex flex-wrap gap-2 items-center justify-between">
                         <span className="text-xs font-bold tracking-widest text-neutral-500">EDITAR (solo impresión)</span>
                         <div className="flex gap-2">
@@ -388,13 +409,21 @@ export default function Home() {
             )}
           </div>
 
-          {/* Área impresión */}
+          {/* Área impresión — usa el theme guardado desde /preview */}
           <div className="print-area hidden">
             {formato === "a4" &&
               items.map((it) => (
                 <div key={`p-a4-${it.id}`} className="print-page-a4">
                   <div className="print-cartel-wrapper">
-                    <Cartel id={it.id} descripcion={it.descripcion} unidadesPorBulto={it.unidades_por_bulto} precioSur={it.precio_sur} precioUnidadSur={it.precio_unidad_sur} fullHeight />
+                    <Cartel
+                      id={it.id}
+                      descripcion={it.descripcion}
+                      unidadesPorBulto={it.unidades_por_bulto}
+                      precioSur={it.precio_sur}
+                      precioUnidadSur={it.precio_unidad_sur}
+                      fullHeight
+                      theme={themeA4}
+                    />
                   </div>
                 </div>
               ))}
@@ -415,6 +444,7 @@ export default function Home() {
                             precioUnidadSur={it.precio_unidad_sur}
                             compact
                             fullHeight
+                            theme={theme2x}
                           />
                         </div>
                       </div>
@@ -458,10 +488,6 @@ export default function Home() {
               .print-half-top { border-bottom: 1.5px dashed #888; }
               .print-half-empty { border-top: 1.5px dashed #ccc; }
               .print-cartel-wrapper { flex: 1; display: flex; min-height: 0; }
-              .print-page-a4 .cartel-title { font-size: 38px !important; }
-              .print-page-a4 .cartel-unit-price { font-size: 72px !important; }
-              .print-page-2x .cartel-title { font-size: 26px !important; }
-              .print-page-2x .cartel-unit-price { font-size: 52px !important; }
             }
           `}</style>
         </>
