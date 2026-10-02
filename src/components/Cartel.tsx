@@ -46,7 +46,8 @@ export function Cartel({ id, descripcion, unidadesPorBulto, precioSur, precioUni
           <img
             src="/cachitologo.png"
             alt="Cachito y Jose"
-            className={`object-contain shrink-0 ${compact ? "h-14 md:h-16" : "h-[68px] md:h-[78px]"}`}
+            className={`object-contain shrink-0 ${compact ? "h-14" : "h-[68px] md:h-[78px]"}`}
+            style={compact ? { height: "calc(var(--spacing) * 14)" } : undefined}
             onError={(e) => (e.currentTarget.style.display = "none")}
           />
           <div className="flex flex-col leading-none">
